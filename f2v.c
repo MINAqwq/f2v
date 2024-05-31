@@ -52,10 +52,8 @@ static double STREAM_DURATION = 10.0;
 #define STREAM_WIDTH  360
 #define STREAM_HEIGHT 240
 
-#define STREAM_FRAME_RATE                                                      \
-	25				  /* 30                                \
-images/s */
-#define STREAM_PIX_FMT AV_PIX_FMT_YUV420P /* default pix_fmt */
+#define STREAM_FRAME_RATE 25		     /* 25 images/s */
+#define STREAM_PIX_FMT	  AV_PIX_FMT_YUV420P /* default pix_fmt */
 
 #define SCALE_FLAGS SWS_BICUBIC
 
@@ -389,7 +387,7 @@ get_audio_frame(OutputStream *ost)
 			  (AVRational){1, 1}) > 0)
 		return NULL;
 
-	tone = read_global_byte();
+	tone = read_global_byte() | (read_global_byte() << 8);
 	for (j = 0; j < frame->nb_samples; j++) {
 		v = (int)(sin(ost->t) * 10000);
 		for (i = 0; i < ost->enc->ch_layout.nb_channels; i++)
@@ -656,7 +654,7 @@ main(int argc, char **argv)
 	}
 
 	STREAM_DURATION = (((double)size_of_file(argv[2])) /
-			   (STREAM_WIDTH * STREAM_HEIGHT) / 25.0);
+			   ((STREAM_WIDTH * STREAM_HEIGHT) + 2) / 25.0);
 
 	printf("durations: %f | %d\n", STREAM_DURATION, size_of_file(argv[2]));
 
