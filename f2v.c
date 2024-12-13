@@ -77,7 +77,7 @@ typedef struct OutputStream {
 	struct SwrContext *swr_ctx;
 } OutputStream;
 
-static FILE *global_fp = NULL;
+static FILE *global_fp;
 
 static size_t
 size_of_file(const char *path)
@@ -96,6 +96,11 @@ size_of_file(const char *path)
 static uint8_t
 open_global_file(const char *path)
 {
+	if (path[0] == '-' && path[1] == 0) {
+		global_fp = stdin;
+		return 0;
+	}
+
 	global_fp = fopen(path, "rb");
 	return !global_fp;
 }
@@ -110,12 +115,13 @@ read_global_byte()
 		return 0;
 	}
 
-	buffer = fgetc(global_fp);
-	if (buffer == EOF) {
+	if (feof(global_fp)) {
 		fclose(global_fp);
 		global_fp = NULL;
-		return 0;
+		exit(0);
 	}
+
+	buffer = fgetc(global_fp);
 
 	return (uint8_t)buffer;
 }
